@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: accounts-dep
+  labels:
+    app: micro-accounts
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: micro-accounts
+  template:
+    metadata: 
+      labels:
+        app: micro-accounts
+    spec: 
+      containers:
+        - name: micro-accounts
+          image: dfrestrepo1998/microservicio_accounts:1.0.0
+          ports:
+          - containerPort: 8080
+          env:
+          - name: SPRING_PROFILES_ACTIVE
+            valueFrom:
+              configMapKeyRef: 
+                name: micropro-configmap
+                key: profiles-active
+          - name: SPRING_CONFIG_IMPORT
+            valueFrom:
+              configMapKeyRef: 
+                name: micropro-configmap
+                key: config-import   
+          - name: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
+            valueFrom:
+              configMapKeyRef: 
+                name: micropro-configmap
+                key: eureka-serviceurl  
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: micro-accounts-service
+spec:
+  selector:
+    app: micro-accounts
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080
